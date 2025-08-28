@@ -1,18 +1,18 @@
 import subprocess
 import platform
 import re
+from collections import deque
 
 
-valid_worlds = (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,91,92,94,96,97,98,99,100,101,102,103,104,105,106,108,114,115,116,117,118,119,120,121,122,123,124,134,135,136,137,138,139,140,141,142,144,145,176,177,178,179,180,181,182,183,184,185,200,201,202,203,204,205,206,207,210,211,212,213,214,215,216,217,218,219,220,221,225,226,227,228,229,235,236,237,238,239,245,246,247,249,250,251,252,255,256,257,258,259
-)
-
+valid_worlds = (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,91,92,94,96,97,98,99,100,101,102,103,104,105,106,108,114,115,116,117,118,119,120,121,122,123,124,134,135,136,137,138,139,140,141,142,144,145,176,177,178,179,180,181,182,183,184,185,200,201,202,203,204,205,206,207,210,211,212,213,214,215,216,217,218,219,220,221,225,226,227,228,229,235,236,237,238,239,245,246,247,249,250,251,252,255,256,257,258,259)
+# valid_worlds = (1,2,3,4,5,6,7,8,9,10)
 def ping_count():
-    try:
-        count = int(input("How many times would you like to ping each server?: "))
-        return count
-    except ValueError:
-        print("Invalid input. Please enter a number")
-        pass
+    while True:
+        try:
+            count = int(input("How many times would you like to ping each server?: "))
+            return count  
+        except ValueError:
+            print("Invalid input. Please enter a number.")
     
 def ping_world(world,count):
     host = f"world{world}.runescape.com"
@@ -45,26 +45,71 @@ def ping_world(world,count):
     return None
 
 
-def pingall(valid_worlds):
+def pingall(count):
     results = {}
-    count = ping_count()
     for world in valid_worlds:
         results[world] = ping_world(world,count)
     return results
 
+def ping_all_par(count):
+    processes = []
+    results = {}
+    q = deque(valid_worlds)
+    runnning = {}
+    
+    count_flag = "-n" if platform.system().lower() == "windows" else "-c"
+    
+    for world in valid_worlds:
+        host = f"world{world}.runescape.com"
+        proc = subprocess.Popen(
+            ["ping", count_flag, str(count), host],
+            stdout = subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        
+        processes.append((world,proc)) 
+
+    for world,proc in processes:
+        out,_ = proc.communicate()
+        if proc.returncode == 0:
+            if platform.system().lower() == "windows":
+                match = re.search(r"Minimum = (\d+)ms, Maximum = (\d+)ms, Average = (\d+)ms", out)
+                if match:
+                    results[world] = {"min": int(match.group(1)),
+                                      "max": int(match.group(2)),
+                                      "avg": int(match.group(3))}
+                else: results[world] = None
+                
+            else:
+                match = re.search(r"rtt min/avg/max/\w+ = ([\d.]+)/([\d.]+)/([\d.]+)/", out)
+                if match:
+                    results[world] = {"min": float(match.group(1)),
+                                      "avg": float(match.group(2)),
+                                      "max": float(match.group(3))}
+                else: results[world] = None
+        else: results[world] = None
+    return results
+            
+        
 
 def menu():
     world_choice = input("Enter world number to ping, or 'a' to ping all worlds. 'x' to exit: ")
-
-    # Special cases
-    if world_choice.lower() == "a":
-        ping_results = pingall(valid_worlds)
-        print_results(ping_results)
-        return True
-
+    
     if world_choice.lower() == "x":
         return False
     
+    count=ping_count()
+
+    # Special cases
+    if world_choice.lower() == "a":
+        ping_results = ping_all_par(count)              
+        print_results(ping_results)
+        return True
+
+    
+    
+
     try:
         world = int(world_choice)
 
@@ -73,7 +118,7 @@ def menu():
             return True
 
         else:
-            stats = ping_world(world,ping_count())
+            stats = ping_world(world,count)
             print_results({world: stats})  
             return True
 
