@@ -46,7 +46,7 @@ def ping_world(world,count):
     return None
 
 
-def ping_all_par(count):
+def ping_all(count):
     processes = []
     results = {}
     q = deque(valid_worlds)
@@ -98,7 +98,7 @@ def menu():
 
     # Special cases
     if world_choice.lower() == "a":
-        ping_results = ping_all_par(count)
+        ping_results = ping_all(count)
         write_to_csv(ping_results)              
         print_results(ping_results)
         return True
@@ -141,16 +141,6 @@ def write_to_csv(results,filename="ping_data.csv"):
             else:
                 writer.writerow([world, "unreachable"])
         
-
-# How I found list of valid worlds:
-# def find_reachable(start=1, end=259):
-#     reachable = []
-#     for world in range(start, end + 1):
-#         print(f"Checking world {world}...")
-#         if ping_world(world):
-#             reachable.append(world)
-#     return reachable
-
 
 while menu():
     pass
