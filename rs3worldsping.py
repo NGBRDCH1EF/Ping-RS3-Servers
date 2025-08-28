@@ -13,6 +13,7 @@ def ping_count():
     except ValueError:
         print("Invalid input. Please enter a number")
         pass
+    
 def ping_world(world,count):
     host = f"world{world}.runescape.com"
     count_flag = "-n" if platform.system().lower() == "windows" else "-c"
@@ -91,7 +92,7 @@ def print_results(results):
             print(f"{world:<5} | unreachable")
 
 
-# How I found list of invalid worlds:
+# How I found list of valid worlds:
 # def find_reachable(start=1, end=259):
 #     reachable = []
 #     for world in range(start, end + 1):
