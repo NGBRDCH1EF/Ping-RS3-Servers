@@ -13,7 +13,7 @@ Ping every available RS3 server and return min, max, and avg times.
         3. sort by avg
         4. ascending/descending
         5. maybe some more statistics after having the data exported
-    5. Export to some file format
+    5. ~~Export to csv~~
     6. Make GUI?
 2. Learn how to use Git/GitHub
 
