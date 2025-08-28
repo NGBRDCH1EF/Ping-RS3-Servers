@@ -1,4 +1,12 @@
-I am doing this because I wanted to find the best server to use when playing Runescape, I am trying to learn Python, and how github works. 
-Advice is welcome and appreciated
+# Ping RS3 Worlds
+## Purpose
+Ping every available RS3 server and return min, max, and avg times.
 
-Please let me know how well this works on linux, I don't have a linux machine setup right now.
+## Goal
+1. Practice Python
+    1. ~~use subprocesses~~
+    2. ~~run some commands in background for speed~~
+    3. present info reasonably
+    4. Export to some file format
+2. Learn how to use Git/GitHub
+
