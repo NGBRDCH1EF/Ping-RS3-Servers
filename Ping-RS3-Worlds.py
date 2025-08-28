@@ -122,11 +122,11 @@ def menu():
 
 
 def print_results(results):
-    print(",World | Min | Max | Avg     (ms)")
+    print("World | Min | Max | Avg     (ms)")
     print("-" * 31)
     for world, stats in results.items():
         if stats:
-            print(f"{world:<5} | {stats['min']:<3} | {stats['max']:<3} | {stats['avg']:<3} ✅")
+            print(f"{world:<5} | {stats['min']:<3} | {stats['max']:<3} | {stats['avg']:<3}      ✅")
         else:
             print(f"{world:<5} | unreachable❌")
 
