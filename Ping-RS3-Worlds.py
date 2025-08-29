@@ -10,10 +10,11 @@ valid_worlds = (1,2,3,4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,2
 def ping_count():
     while True:
         try:
-            count = int(input("How many times would you like to ping each server?: "))
-            return count  
+            count = int(input("How many times would you like to ping each server? (1 - 10): "))
+            if 1<=count and count <=10: return count 
+            print("Number must be between 1 and 10.")
         except ValueError:
-            print("Invalid input. Please enter a number.")
+            print("Invalid input. Please enter a number between 1 and 10.")
     
 def ping_world(world,count):
     host = f"world{world}.runescape.com"
