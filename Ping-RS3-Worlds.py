@@ -17,46 +17,16 @@ def ping_count():
         except ValueError:
             print("Invalid input. Please enter a number between 1 and 10.")
     
-def ping_world(world,count):
-    host = f"world{world}.runescape.com"
-    count_flag = "-n" if platform.system().lower() == "windows" else "-c"
-    print(f"Pinging world {world}...")
-    result = subprocess.run(
-        ["ping", count_flag, str(count), host],
-        capture_output=True,
-        text=True
-    )
 
-    if result.returncode != 0:
-        return None  # unreachable
-
-    output = result.stdout
-
-    if platform.system().lower() == "windows":
-        match = re.search(r"Minimum = (\d+)ms, Maximum = (\d+)ms, Average = (\d+)ms", output)
-        if match:
-            return {"min": int(match.group(1)),
-                    "max": int(match.group(2)),
-                    "avg": int(match.group(3))}
-    else:
-        match = re.search(r"rtt min/avg/max/\w+ = ([\d.]+)/([\d.]+)/([\d.]+)/", output)
-        if match:
-            return {"min": float(match.group(1)),
-                    "avg": float(match.group(2)),
-                    "max": float(match.group(3))}
-
-    return None
-
-
-def ping_all(count):
+def ping_worlds(count,worlds=valid_worlds):
     processes = []
     results = {}
-    q = deque(valid_worlds)
+    q = deque(worlds)
     runnning = {}
     
     count_flag = "-n" if platform.system().lower() == "windows" else "-c"
     
-    for world in valid_worlds:
+    for world in worlds:
         host = f"world{world}.runescape.com"
         proc = subprocess.Popen(
             ["ping", count_flag, str(count), host],
@@ -88,38 +58,40 @@ def ping_all(count):
         else: results[world] = None
     return results
             
-        
+def Get_World_List():
+    raw = input("Enter RS3 worlds to be pinged seperated by commas, 'a' to ping all available, or 'x' to exit ")
+    values = []
+    for v in raw.split(","):
+        v = v.strip()
+        if not v:                   # skip empties
+            continue
+        try:
+            values.append(int(v))   # convert to int if possible
+        except ValueError:
+            values.append(v)        # leave as string if not
+    if 'a' not in values and 'x' not in values: return values
+    if 'a' in values: return 'a'       
+    if 'x' in values: return 'x'
 
-def menu():
-    world_choice = input("Enter world number to ping, or 'a' to ping all worlds. 'x' to exit: ")
-    
-    if world_choice.lower() == "x":
-        return False
-    
-    count=ping_count()
 
-    # Special cases
-    if world_choice.lower() == "a":
-        ping_results = ping_all(count)
-        write_to_csv(ping_results)              
-        print_results(ping_results)
+
+def menu():        
+    choice = Get_World_List()
+    if choice == 'a' :
+        results = ping_worlds(ping_count(),valid_worlds)    #ping all
+        print_results(results)
+        write_to_csv(results)
         return True
-
+    if choice == 'x':                                       #exit script
+        return False
     try:
-        world = int(world_choice)
-
-        if world < 1 or world > 259:
-            print("World must be between 1 and 259")
-            return True
-
-        else:
-            stats = ping_world(world,count)
-            write_to_csv({world: stats})
-            print_results({world: stats})  
-            return True
-
+        results = ping_worlds(ping_count(),choice)          #ping user-defined set of worlds
+        print_results(results)
+        write_to_csv(results)
+        return True
+        
     except ValueError:
-        print("Invalid input. Please enter a number, 'a', or 'x'.")
+        print("Invalid input")
         return True
 
 
