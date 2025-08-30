@@ -21,8 +21,6 @@ def ping_count():
 def ping_worlds(count,worlds=valid_worlds):
     processes = []
     results = {}
-    q = deque(worlds)
-    runnning = {}
     
     count_flag = "-n" if platform.system().lower() == "windows" else "-c"
     
