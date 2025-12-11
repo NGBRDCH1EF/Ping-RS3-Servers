@@ -147,5 +147,7 @@ def sort_choice():
 
 
 
-while menu():
-    pass
+while True:
+    if input("Press enter to Continue or 'q' to quit:").lower() =='q': exit()
+    menu()
+    
